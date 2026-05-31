@@ -1,23 +1,21 @@
-using System.Collections;
-using UnityEngine;
 
-public class AsteroidsSpawner : MonoBehaviour
+using UnityEngine;
+using System.Collections;
+
+public class AsteroidSpawner : MonoBehaviour
 {
     // Tiempo entre intervalos de generación de asteroides
-    [SerializeField]
-    float interval;
-
+    [SerializeField] float interval; 
+    
     // Tiempo de espera antes de comezar a generar asteroides
-    [SerializeField]
-    float delay;
+    [SerializeField] float delay; 
 
     // Prefab de la nave enemiga
-    [SerializeField]
-    GameObject AsteroidBig;
+    [SerializeField] GameObject AsteroidBig; 
 
     // Coordenadas mínima y máxima en el eje X
-    const float MIN_X = -4.5f;
-    const float MAX_X = 4.5f;
+    const float MIN_X = -4.5f; 
+    const float MAX_X = 4.5f; 
 
     void Start()
     {
@@ -30,12 +28,12 @@ public class AsteroidsSpawner : MonoBehaviour
         yield return new WaitForSeconds(delay);
 
         // Generación infinita de asteroides
-        while (true)
+        while(true)
         {
             // Generar una posición aleatoria en el eje X dentro del rango establecido
             Vector3 position = new Vector3(Random.Range(MIN_X, MAX_X), transform.position.y, 0);
-
-            Debug.Log("Xerando asteroide en: " + position);
+       
+        Debug.Log("Xerando asteroide en: " + position);
 
             // Instanciar un nuevo asteroide en la posición aleatoria
             Instantiate(AsteroidBig, position, Quaternion.identity);

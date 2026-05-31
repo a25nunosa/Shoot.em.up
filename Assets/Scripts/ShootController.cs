@@ -2,16 +2,24 @@ using UnityEngine;
 
 public class ShootController : MonoBehaviour
 {
+    [SerializeField] GameManager gameManager;
     // Velocidad de los disparos
-    [SerializeField]
-    float speed;
-
-    [SerializeField]
-    GameObject hit; // Efecto de impacto al colisionar
+    [SerializeField] float speed;
 
     // Tiempo que duran los disparos antes de autodestruirse
-    [SerializeField]
-    float lifetime;
+    [SerializeField] float lifetime;
+
+    [SerializeField] GameObject hit1;
+
+    void Awake()
+    {
+        if (gameManager == null)
+        {
+            gameManager = GameManager.Instance;
+            if (gameManager == null)
+                gameManager = FindObjectOfType<GameManager>();
+        }
+    }
 
     void Start()
     {
@@ -31,14 +39,28 @@ public class ShootController : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Enemy"))
-        {
-            GameManager.GetInstance().AddScore(50); // Añadir puntos al destruir un enemigo
-            Instantiate(hit, transform.position, Quaternion.identity);
+    private void OnTriggerEnter2D(Collider2D other) {
+        if(other.CompareTag("enemy")){
+            if (hit1 != null)
+            {
+                Instantiate(hit1, transform.position, Quaternion.identity);
+            }
+            else
+            {
+                Debug.LogWarning("ShootController: hit1 prefab is not assigned.", this);
+            }
+
+            if (gameManager != null)
+            {
+                gameManager.AddPointP1();
+            }
+            else
+            {
+                Debug.LogError("ShootController: GameManager reference is not assigned.", this);
+            }
+
             Destroy(gameObject);
         }
-        // Debug.Log("Colisión con disparo");
     }
+
 }

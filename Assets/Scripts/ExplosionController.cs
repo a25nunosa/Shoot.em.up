@@ -4,10 +4,8 @@ public class ExplosionController : MonoBehaviour
 {
     // Tiempo de espera antes de destruir la explosión
     const float DELAY = 0.25f;
-
     // Sonido de la explosión
-    [SerializeField]
-    AudioClip explosionSound;
+    [SerializeField] AudioClip explosionSound;
 
     void Start()
     {

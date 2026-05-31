@@ -4,25 +4,29 @@
 TagManager:
   serializedVersion: 3
   tags:
+  - Right
+  - Left
   - Top
   - Bottom
-  - Left
-  - Right
-  - Enemy
-  - AsteroidBig
-  - Shoot
+  - shoot
+  - enemy
+  - asteroid
+  - maxima
+  - puntuacion
+  - gameover
+  - hit
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Asteroide
   - Water
   - UI
-  - Enemies
+  - Enemigos
+  - "L\xEDmitesH"
+  - "L\xEDmitesV"
   - 
-  - Asteroids
-  - LimitsV
-  - LimitsH
+  - 
   - 
   - 
   - 

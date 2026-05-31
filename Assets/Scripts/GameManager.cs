@@ -1,76 +1,85 @@
-using TMPro;
 using UnityEngine;
+
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-    static GameManager instance;
+    public static GameManager Instance { get; private set; }
 
-    int lives = 3;
-    int score = 0;
-    int maxScore = 0;
+       const int LIVES = 3;
+   [SerializeField] TextMeshProUGUI txtScore;
+   [SerializeField] TextMeshProUGUI txtMaxScore; 
+   [SerializeField] TextMeshProUGUI txtMessage; 
+    //Array paara las imágenes que marcan las vidas 
+    [SerializeField] GameObject[] imgLives;
+    
+    [Header("Extra Life Settings")]
+    [Tooltip("Puntos necesarios para ganar 1 vida extra (repite cada X puntos).")]
+    [SerializeField] int pointsPerExtraLife = 1000;
+ 
+    int score;
+    int maxScore; 
+      //Inicializamos las vidas a la constante 
+    int lives = LIVES; 
+    
+        // Siguiente umbral de puntuación para dar vida extra
+        int nextExtraLifeAt;
 
-    [SerializeField]
-    TextMeshProUGUI txtScore;
-
-    [SerializeField]
-    TextMeshProUGUI txtMaxScore;
-
-    [SerializeField]
-    TextMeshProUGUI txtMessage1;
-
-    [SerializeField]
-    TextMeshProUGUI txtMessage2;
-
-    //Array paara las imágenes que marcan las vidas
-    [SerializeField]
-    GameObject[] imgLives;
-
-    // Método estático para obtener la instancia del GameManager
-    public static GameManager GetInstance()
+    public void AddPointP1()
     {
-        return instance;
+        score++;
+        if (txtScore != null)
+            txtScore.text = string.Format("{0,4:D4}", score);
+
+        CheckForExtraLife();
     }
 
-    private void OnGUI()
+    void CheckForExtraLife()
     {
-        for (int i = 0; i < imgLives.Length; i++)
-        {
-            imgLives[i].SetActive(i < lives);
-        }
-        txtScore.text = string.Format("{0,4:D4}", score);
-    }
+        if (pointsPerExtraLife <= 0)
+            return;
 
-    // Función Awake se ejecuta cuando se instancia el objeto
-    void Awake()
-    {
-        if (instance == null)
+        while (score >= nextExtraLifeAt)
         {
-            instance = this;
-            DontDestroyOnLoad(gameObject); // Evitar que el objeto se destruya al cambiar de escena
-        }
-        else if (instance != this)
-        {
-            // Si ya existe una instancia, destruimos el nuevo GameManager para mantener la singularidad
-            Destroy(gameObject);
+            AddLife(1);
+            nextExtraLifeAt += pointsPerExtraLife;
         }
     }
 
-    void Start()
+    // Añade vidas (respetando el número máximo de imágenes en imgLives si está asignado)
+    public void AddLife(int amount = 1)
     {
-        txtMessage1.gameObject.SetActive(false);
-        txtMessage2.gameObject.SetActive(false);
+        if (amount <= 0) return;
+
+        int maxPossibleLives = imgLives != null && imgLives.Length > 0 ? imgLives.Length : 99;
+        lives = Mathf.Min(lives + amount, maxPossibleLives);
+    }
+
+     private void OnGUI()
+    {
+        if (imgLives != null)
+        {
+            for (int i = 0; i < imgLives.Length; i++)
+            {
+                if (imgLives[i] != null)
+                    imgLives[i].SetActive(i < lives);
+            }
+        }
+
+        if (txtScore != null)
+            txtScore.text = string.Format("{0,4:D4}", score);
     }
 
     void Update()
     {
         if (lives == 0)
         {
-            txtMessage1.gameObject.SetActive(true);
-            txtMessage2.gameObject.SetActive(true);
+            txtMessage.gameObject.SetActive(true);
+
             // Destruye los objetos instanciados por spawner o nosotros
-            DestroyAllWithTag("AsteroidBig");
-            DestroyAllWithTag("Enemy");
-            DestroyAllWithTag("Shoot");
+            DestroyAllWithTag("asteroid");
+            DestroyAllWithTag("enemy");
+            DestroyAllWithTag("shoot");
             if (score > maxScore)
             {
                 maxScore = score;
@@ -81,30 +90,49 @@ public class GameManager : MonoBehaviour
                 // Reiniciamos el juego
                 lives = 3;
                 score = 0;
-                txtMessage1.gameObject.SetActive(false);
-                txtMessage2.gameObject.SetActive(false);
+                txtMessage.gameObject.SetActive(false);
+
             }
         }
     }
 
-    public void ReduceLife()
+    void Awake()
     {
-        lives--;
-        Debug.Log("Vidas restantes: " + lives);
-    }
-
-    public void AddScore(int puntuacion)
-    {
-        score += puntuacion;
-        // Controla la logica de date una vida extra. Al llegar a la mitad de la puntuación máxima
-        if (score == 5000 && lives < 3)
+        if (Instance == null)
         {
-            lives++;
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
         }
     }
 
-    // Destruye todos los GameObjects con la tag especificada
-    void DestroyAllWithTag(string tag)
+    void Start()
+    {
+        txtMessage.gameObject.SetActive(false);
+        // Inicializar valores UI y umbral de vida extra
+        if (txtScore != null)
+            txtScore.text = string.Format("{0,4:D4}", score);
+        if (txtMaxScore != null)
+            txtMaxScore.text = string.Format("{0,4:D4}", maxScore);
+
+        nextExtraLifeAt = pointsPerExtraLife > 0 ? pointsPerExtraLife : int.MaxValue;
+
+    }
+
+        // Método para actualizar las vidas
+    public void Updatelives()
+    {
+        lives--;
+    }
+
+
+
+    
+
+     void DestroyAllWithTag(string tag)
     {
         GameObject[] objects = GameObject.FindGameObjectsWithTag(tag);
         foreach (GameObject obj in objects)
@@ -112,4 +140,5 @@ public class GameManager : MonoBehaviour
             Destroy(obj);
         }
     }
+
 }
